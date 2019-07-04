@@ -102,6 +102,8 @@ void Error_Handler(void);
 #define LCD_E_GPIO_Port GPIOB
 #define LCD_RW_Pin GPIO_PIN_4
 #define LCD_RW_GPIO_Port GPIOB
+#define DHT11_Pin GPIO_PIN_5
+#define DHT11_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

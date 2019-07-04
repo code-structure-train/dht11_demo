@@ -56,6 +56,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "LCD.h"
+#include "dht11.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -74,6 +75,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
 
@@ -82,13 +84,14 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+DHT11_Dev dht11;
 /* USER CODE END 0 */
 
 /**
@@ -121,15 +124,23 @@ int main(void)
   MX_GPIO_Init();
   MX_FATFS_Init();
   MX_USB_DEVICE_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   LCD_Init(); 
-  LCD_Puts(0,0,"Hello World");
+  DHT11_Init(&dht11,TIM2,DHT11_GPIO_Port,DHT11_Pin);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  char rh[40];
+  char temp[40];
   while (1)
   {
+		DHT11_Read(&dht11);
+    sprintf(rh,   "RH  : %d.%d%%", dht11.humidity, dht11.hum_float);
+    sprintf(temp, "TEMP: %d.%d ", dht11.temparature, dht11.temp_float);
+    LCD_Puts(0,0,rh);
+    LCD_Puts(0,1,temp);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -180,6 +191,50 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 0;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 0;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -199,7 +254,7 @@ static void MX_GPIO_Init(void)
                           |LCD_D7_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LCD_E_Pin|LCD_RW_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LCD_E_Pin|LCD_RW_Pin|DHT11_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : LCD_RS_Pin LCD_D4_Pin LCD_D5_Pin LCD_D6_Pin 
                            LCD_D7_Pin */
@@ -210,8 +265,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LCD_E_Pin LCD_RW_Pin */
-  GPIO_InitStruct.Pin = LCD_E_Pin|LCD_RW_Pin;
+  /*Configure GPIO pins : LCD_E_Pin LCD_RW_Pin DHT11_Pin */
+  GPIO_InitStruct.Pin = LCD_E_Pin|LCD_RW_Pin|DHT11_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

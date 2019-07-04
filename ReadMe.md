@@ -13,9 +13,17 @@ D5     | PD5
 D6     | PD6
 D7     | PD7
 
-![](https://github.com/code-structure-train/lcd_keypad_demo/raw/master/Doc/lcd_keypad_1.jpg)
+DHT11 接线
+---
+> `3.3v 供电`
 
-![](https://github.com/code-structure-train/lcd_keypad_demo/raw/master/Doc/lcd_keypad_2.jpg)
+DHT11  | STM32
+:----- | -----:
+DATA   | PB5
+
+![](https://github.com/code-structure-train/dht11_demo/raw/master/Doc/dht11_1.jpg)
+
+![](https://github.com/code-structure-train/dht11_demo/raw/master/Doc/lcd_keypad_2.jpg)
 
 ## 欢迎扫码关注我的公众号`MultiMCU EDU`。<br>
 ![](https://github.com/SuWeipeng/img/raw/master/gongzonghao.jpg)<br>
